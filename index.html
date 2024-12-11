@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imagen Fija</title>
+    <title>Imagen Fija con Línea Dinámica</title>
     <style>
         body, html {
             margin: 0;
@@ -11,30 +11,100 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f0f0;
+            position: relative;
         }
         #image-container {
             width: 100%;
             height: 100%;
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            overflow: hidden;
+            background-color: #f0f0f0;
         }
         img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain; /* Asegura que la imagen mantenga sus proporciones */
         }
+        #line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px; /* Grosor de la línea */
+            background-color: red; /* Color de la línea */
+            top: 50%; /* Inicialmente centrada verticalmente */
+            cursor: pointer;
+        }
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div id="image-container">
+        <!-- Imagen fija -->
         <img src="imagen.jpg" alt="Imagen Fija" />
+        <!-- Línea dinámica -->
+        <div id="line"></div>
+        <!-- Controles para mover la línea -->
+        <div class="controls">
+            <button id="up">Mover Arriba</button>
+            <button id="down">Mover Abajo</button>
+        </div>
     </div>
+
+    <script>
+        const line = document.getElementById('line');
+        const container = document.getElementById('image-container');
+        const upButton = document.getElementById('up');
+        const downButton = document.getElementById('down');
+        let topPosition = 50; // Posición inicial en porcentaje
+        const moveStep = 1; // Distancia de movimiento en porcentaje (ajústalo según tus necesidades)
+
+        // Función para mover la línea
+        function moveLine(direction) {
+            if (direction === 'up' && topPosition > 0) {
+                topPosition -= moveStep; // Mover hacia arriba
+            } else if (direction === 'down' && topPosition < 100) {
+                topPosition += moveStep; // Mover hacia abajo
+            }
+            topPosition = Math.max(0, Math.min(100, topPosition)); // Asegurarse de que no se salga de los límites
+            line.style.top = `${topPosition}%`;
+        }
+
+        // Eventos para los botones
+        upButton.addEventListener('click', () => moveLine('up'));
+        downButton.addEventListener('click', () => moveLine('down'));
+
+        // Permitir mover la línea con arrastre del ratón
+        let isDragging = false;
+
+        line.addEventListener('mousedown', () => {
+            isDragging = true;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        window.addEventListener('mousemove', (event) => {
+            if (isDragging) {
+                const rect = container.getBoundingClientRect();
+                const mouseY = event.clientY - rect.top;
+                topPosition = Math.max(0, Math.min(100, (mouseY / rect.height) * 100));
+                line.style.top = `${topPosition}%`;
+            }
+        });
+    </script>
 </body>
 </html>
